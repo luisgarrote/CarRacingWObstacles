@@ -119,7 +119,6 @@ class CarRacingObstacles(BaseCarRacing):
         self.was_on_start = False
 
 
-        self.verbose=True
     # --------------------------------------------------------------------------
     # Clean-up helpers
     # --------------------------------------------------------------------------
