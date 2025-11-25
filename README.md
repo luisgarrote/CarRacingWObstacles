@@ -24,6 +24,7 @@ cd CarRacingWObstacles
 ### 2. Install dependencies
 
 ```
+pip install swig
 pip install -r requirements.txt
 ```
 
