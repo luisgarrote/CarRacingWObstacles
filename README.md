@@ -4,23 +4,21 @@ An extended version of Gymnasium’s **CarRacing-v3** environment, adding:
 
 - Static obstacles  
 - Dynamic obstacles  
-- Mountain / elevation zones  
+- Mountains  
 - A ghost car that follows the racing line  
-- Improved aesthetics  
 
-This environment is designed for teaching **Deep Reinforcement Learning**, providing more realistic scenarios while remaining lightweight and deterministic.
 
 ---
 
-## 🚀 Installation
+## Installation
 
 You need Python 3.9+.
 
 ### 1. Clone the repository
 
 ```
-git clone https://github.com/YOUR_USERNAME/car-racing-obstacles.git
-cd car-racing-obstacles
+git clone https://github.com/luisgarrote/CarRacingWObstacles.git
+cd CarRacingWObstacles
 ```
 
 ### 2. Install dependencies
@@ -39,7 +37,7 @@ This registers the environment `CarRacingObstacles-v3`.
 
 ---
 
-## 🏎️ Using the Environment
+## Using the Environment
 
 ```python
 import gymnasium as gym
@@ -59,36 +57,29 @@ env.close()
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 car_racing_obstacles/
 │
 ├── car_racing_obstacles.py      # The main environment extension
 ├── car_dynamics.py              # Car physics (from Gymnasium)
+├── car_racing.py                # Base environment (from Gymnasium)
 ├── register_envs.py             # Registers env into Gymnasium
 │
+├── demo.py
 ├── README.md
 ├── requirements.txt
 ├── setup.py
-└── examples/
-      └── play_keyboard.py
+
 ```
 
----
-
-## 🛠️ Creating Your Own Obstacles
-
-You can modify `car_racing_obstacles.py` to change the number, size, or behavior of obstacles.
-
----
-
-## 👩‍🏫 For Students
+## Note
 
 This environment is intentionally kept simple to install and run on any computer that supports Python, Gymnasium, and Box2D. Students can quickly begin training RL agents with the added complexity of obstacles and a ghost competitor.
 
 ---
 
-## 📄 License
+## License
 
 MIT License.
