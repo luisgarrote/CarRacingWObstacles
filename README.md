@@ -59,7 +59,7 @@ while not done:
 
 env.close()
 ```
-
+Check the demo.py for a keyboard controlled interface
 ---
 
 ## Repository Structure
