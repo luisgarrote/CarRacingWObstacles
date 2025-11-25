@@ -1,0 +1,4 @@
+pygame
+box2d-py
+gymnasium
+numpy
