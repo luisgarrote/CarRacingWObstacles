@@ -41,9 +41,14 @@ This registers the environment `CarRacingObstacles-v3`.
 
 ```python
 import gymnasium as gym
-import car_racing_obstacles   # imports registration
+from car_racing_obstacles import CarRacingObstacles
+# if CarRacingObstacles-v3 not found
+gym.register(
+    id="CarRacingObstacles-v3",
+    entry_point="car_racing_obstacles:CarRacingObstacles",
+)
 
-env = gym.make("CarRacingObstacles-v3", render_mode="human")
+env = gym.make("CarRacingObstacles-v3", render_mode="human") #rgb_array
 obs, info = env.reset()
 
 done = False
