@@ -82,28 +82,27 @@ class FrictionDetector(contactListener):
         if not tile:
             return
 
-        # inherit tile color from env
-        tile.color[:] = self.env.road_color
-        if not obj or "tiles" not in obj.__dict__:
+        # Only the learner's wheels can earn progress or trigger lap events.
+        car = self.env.car
+        if car is None or obj is None or not any(obj == wheel for wheel in car.wheels):
             return
+        tile.color[:] = self.env.road_color
         if begin:
             obj.tiles.add(tile)
+            self.env.tile_idx = int(tile.idx)
+            if tile.idx != 0:
+                self.env._left_start = True
             if not tile.road_visited:
                 tile.road_visited = True
                 self.env.reward += 1000.0 / len(self.env.track)
-                self.tile_id=tile.idx
-
                 self.env.tile_visited_count += 1
-
-                # Lap is considered completed if enough % of the track was covered
-                if (
-                    tile.idx == 0
+            # Evaluate the finish crossing even if tile zero was visited at reset.
+            if (tile.idx == 0 and self.env._left_start
                     and self.env.tile_visited_count / len(self.env.track)
-                    > self.lap_complete_percent
-                ):
-                    self.env.new_lap = True
+                    >= self.lap_complete_percent):
+                self.env.new_lap = True
         else:
-            obj.tiles.remove(tile)
+            obj.tiles.discard(tile)
 
 
 class CarRacing(gym.Env, EzPickle):
@@ -246,7 +245,8 @@ class CarRacing(gym.Env, EzPickle):
         self.prev_reward = 0.0
         self.verbose = verbose
         self.new_lap = False
-        self.tile_idx=0
+        self.tile_idx = 0
+        self._left_start = False
         self.fd_tile = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
@@ -501,8 +501,8 @@ class CarRacing(gym.Env, EzPickle):
     def reset(
         self,
         *,
-        seed: int  ,
-        options: dict  ,
+        seed: int | None = None,
+        options: dict | None = None,
     ):
         super().reset(seed=seed)
         self._destroy()
@@ -514,6 +514,8 @@ class CarRacing(gym.Env, EzPickle):
         self.prev_reward = 0.0
         self.tile_visited_count = 0
         self.t = 0.0
+        self.tile_idx = 0
+        self._left_start = False
         self.new_lap = False
         self.road_poly = []
 
@@ -538,13 +540,17 @@ class CarRacing(gym.Env, EzPickle):
 
         if self.render_mode == "human":
             self.render()
-        return self.step(None)[0], {}
+        # Initialize physics without invoking subclass task rewards or counters.
+        return CarRacing.step(self, None)[0], {}
+
+    def _before_physics_step(self):
+        """Hook for subclasses to place moving objects before contacts/sensing."""
 
     def step(self, action):
         assert self.car is not None
         if action is not None:
             if self.continuous:
-                action = action.astype(np.float64)
+                action = np.asarray(action, dtype=np.float64)
                 self.car.steer(-action[0])
                 self.car.gas(action[1])
                 self.car.brake(action[2])
@@ -558,11 +564,10 @@ class CarRacing(gym.Env, EzPickle):
                 self.car.gas(0.2 * (action == 3))
                 self.car.brake(0.8 * (action == 4))
 
+        self._before_physics_step()
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
-
-        self.state = self._render("state_pixels")
 
         step_reward = 0
         terminated = False
@@ -583,8 +588,10 @@ class CarRacing(gym.Env, EzPickle):
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
                 terminated = True
                 info["lap_finished"] = False
+                info["out_of_bounds"] = True
                 step_reward = -100
 
+        self.state = self._render("state_pixels")
         if self.render_mode == "human":
             self.render()
         return self.state, step_reward, terminated, truncated, info

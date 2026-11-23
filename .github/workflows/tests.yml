@@ -1,0 +1,26 @@
+name: Environment and wheel checks
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    env:
+      SDL_VIDEODRIVER: dummy
+      SDL_AUDIODRIVER: dummy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip setuptools wheel swig
+      - run: python -m pip install --no-build-isolation -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - run: python -m pip wheel . --no-deps --no-build-isolation -w dist
+      - run: python -m pip install --no-deps --force-reinstall dist/*.whl
+      - name: Import the installed wheel outside the checkout
+        run: |
+          cd "${{ runner.temp }}"
+          python -c "import car_racing_obstacles, gymnasium as gym; e=gym.make('CarRacingObstacles-v3', render_mode='rgb_array'); o,_=e.reset(seed=123); assert o.shape==(96,96,3); e.close()"
