@@ -17,7 +17,8 @@ def main():
     model = PPO.load(str(run/"model.zip"),device="cpu")
     rows = []
     for case in load_cases():
-        env = prepare_env(make_env(case,max_steps=args.max_steps),config["history"])
+        env = prepare_env(make_env(case,max_steps=args.max_steps,
+                                  action_repeat=config.get("action_repeat", 1)),config["history"])
         try:
             result = episode(model,env,case["seed"])
             rows.append(dict(case_id=case["id"],group=case["group"],**result))

@@ -43,3 +43,6 @@ jobs:
       - run: python examples/run_model.py --run outputs/ci --case normal_1 --max-steps 8
       - run: python examples/evaluate.py --run outputs/ci --max-steps 8
       - run: python examples/record_video.py --run outputs/ci --case randomized_1 --max-steps 8 --output outputs/ci/demo.mp4
+      - run: python examples/train_ppo.py --episodes 12 --history 4 --action-repeat 3 --rollout 32 --batch-size 16 --epochs 1 --max-steps 16 --output outputs/persistent
+      - run: python examples/run_model.py --run outputs/persistent --case normal_1 --max-steps 8
+      - run: python examples/record_video.py --run outputs/persistent --case normal_1 --max-steps 8 --output outputs/persistent/demo.mp4

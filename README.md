@@ -149,6 +149,30 @@ Training samples tracks on reset. Add `--randomize` to vary appearance during
 training; `--obstacles N` and `--traffic N` enable extra hazards. The assignment's
 standard evaluation suite has no added obstacles, mountains or ghost.
 
+To train for **500 completed episodes** with four-frame history and an action
+held for three physics frames:
+
+```sh
+python examples/train_ppo.py --episodes 500 --history 4 --action-repeat 3 --seed 0 --output outputs/ppo_h4_repeat3_seed0
+```
+
+`--episodes` replaces the timestep stopping budget. The SB3 callback stops when
+the episode count is reached. SB3 timesteps count **policy decisions**: one PPO
+iteration collects `--rollout` decisions (512 by default) before updating. With
+persistence 3, each decision advances up to three physics frames, sums their
+rewards and returns the final image. It stops early at episode boundaries. The
+four-image stack contains recent **decision-time images** (12 RGB channels),
+with no max pooling. The 1,000-step time limit still counts physics frames.
+
+`training.monitor.csv` records episode return, decision count, physics-frame
+count and success. `progress.json` reports the live completed-episode count,
+last-100 mean return, successes and frame counts. The graph refreshes every 25
+episodes; checkpoints are saved every 50. The final, potentially incomplete PPO
+rollout is discarded when the episode callback stops collection, as in SB3's
+standard episode-stop callback. Run, evaluation and video scripts restore the
+saved persistence value automatically. Video still captures every physics frame
+at 50 fps, including intermediate frames while an action is held.
+
 [evaluation_cases.json](examples/evaluation_cases.json) freezes the seeds and all
 environment settings for five standard tracks and five appearance-randomized
 cases. The latter are **not paired copies of the standard track geometry**:

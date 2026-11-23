@@ -5,6 +5,7 @@ import json
 import gymnasium as gym
 import numpy as np
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
+from action_repeat import ActionRepeat
 
 CASES_PATH = Path(__file__).with_name("evaluation_cases.json")
 
@@ -21,19 +22,20 @@ def episode(model, env, seed):
     """SB3 VecEnv auto-resets; collect the ending info before the next episode."""
     env.seed(seed)
     obs = env.reset()
-    total, length, contacts, pickups, deliveries = 0.0, 0, 0, 0, 0
+    total, length, contacts, pickups, deliveries, frames = 0.0, 0, 0, 0, 0, 0
     while True:
         action, _ = model.predict(obs, deterministic=True)
         obs, rewards, dones, infos = env.step(action)
         info = infos[0]
         total += float(rewards[0])
         length += 1
+        frames += int(info.get("simulator_frames", 1))
         contacts += int(bool(info.get("collision", info.get("collision_static", False))))
         pickups += int(info.get("picked_box") is not None)
         deliveries += int(info.get("delivered_box") is not None)
         if dones[0]:
             truncated = bool(info.get("TimeLimit.truncated", False))
-            return dict(seed=seed, episode_return=total, length=length,
+            return dict(seed=seed, episode_return=total, length=length, simulator_frames=frames,
                         success=bool(info.get("is_success", False)),
                         contact_steps=contacts, pallets_delivered=info.get("delivered_count"),
                         pickup_events=pickups, delivery_events=deliveries,
@@ -64,12 +66,13 @@ POLICY = "CnnPolicy"
 VIDEO_FPS = 50
 
 
-def make_env(case=None, max_steps=None, traffic=0, obstacles=0, randomize=False):
+def make_env(case=None, max_steps=None, traffic=0, obstacles=0, randomize=False, action_repeat=1):
     settings = case["env_kwargs"] if case is not None else dict(
         continuous=True, domain_randomize=randomize,
         n_static_obstacles=obstacles, n_dynamic_obstacles=traffic)
-    return gym.make("CarRacingObstacles-v3", render_mode="rgb_array",
-                    max_episode_steps=max_steps or (case["max_steps"] if case else 1000), **settings)
+    env = gym.make("CarRacingObstacles-v3", render_mode="rgb_array",
+                   max_episode_steps=max_steps or (case["max_steps"] if case else 1000), **settings)
+    return ActionRepeat(env, action_repeat)
 
 
 def prepare_env(base, history=DEFAULT_HISTORY):

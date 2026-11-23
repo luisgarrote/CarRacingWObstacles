@@ -15,7 +15,8 @@ def main():
     args = parser.parse_args()
     run = Path(args.run); config = json.loads((run/"config.json").read_text())
     case = get_case(args.case); torch.set_num_threads(1)
-    env = prepare_env(make_env(case,max_steps=args.max_steps),config["history"])
+    env = prepare_env(make_env(case,max_steps=args.max_steps,
+                              action_repeat=config.get("action_repeat", 1)),config["history"])
     try:
         model = PPO.load(str(run/"model.zip"),env=env,device="cpu")
         result = episode(model,env,case["seed"]) | {"case_id":case["id"],"group":case["group"]}

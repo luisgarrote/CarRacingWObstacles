@@ -8,6 +8,7 @@ import torch
 from PIL import Image
 from stable_baselines3 import PPO
 from env_utils import make_env, prepare_env, get_case, episode, VIDEO_FPS
+from action_repeat import ActionRepeat
 
 
 class VideoFrames(gym.Wrapper):
@@ -49,7 +50,9 @@ def main():
     output = Path(args.output); output.parent.mkdir(parents=True,exist_ok=True)
     with imageio.get_writer(str(output),fps=VIDEO_FPS,codec="libx264",macro_block_size=1) as writer:
         raw = make_env(case,max_steps=args.max_steps)
-        env = prepare_env(VideoFrames(raw,writer),config["history"])
+        # Capture INSIDE persistence so the movie includes every physics frame.
+        recorded = ActionRepeat(VideoFrames(raw,writer), config.get("action_repeat", 1))
+        env = prepare_env(recorded,config["history"])
         try:
             model = PPO.load(str(run/"model.zip"),env=env,device="cpu")
             metrics = episode(model,env,case["seed"])
