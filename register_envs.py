@@ -1,9 +1,4 @@
-import gymnasium as gym
-from car_racing_obstacles import CarRacingObstacles
+"""Backward-compatible registration import for existing notebooks."""
+from car_racing_obstacles import register
 
-gym.register(
-    id="CarRacingObstacles-v3",
-    entry_point="car_racing_obstacles:CarRacingObstacles",
-)
-
- 
+register()

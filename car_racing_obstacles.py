@@ -7,7 +7,7 @@ import gymnasium as gym
 from gymnasium.envs.box2d import car_racing as base_cr
 from car_racing import CarRacing as BaseCarRacing
 from car_dynamics import Car
-import random
+from gymnasium.utils import EzPickle
 
 try:
     import Box2D
@@ -60,6 +60,7 @@ class CarRacingObstacles(BaseCarRacing):
         n_mountains: int = 0,
         use_ghost: bool = False,
         obstacle_scale: float = 0.1,
+        max_episode_steps: int = 1000,
     ):
         super().__init__(
             render_mode=render_mode,
@@ -69,6 +70,15 @@ class CarRacingObstacles(BaseCarRacing):
             continuous=continuous,
         )
 
+        if max_episode_steps < 1:
+            raise ValueError("max_episode_steps must be positive")
+        EzPickle.__init__(self, render_mode=render_mode, verbose=verbose,
+                         lap_complete_percent=lap_complete_percent,
+                         domain_randomize=domain_randomize, continuous=continuous,
+                         n_static_obstacles=n_static_obstacles,
+                         n_dynamic_obstacles=n_dynamic_obstacles, n_mountains=n_mountains,
+                         use_ghost=use_ghost, obstacle_scale=obstacle_scale,
+                         max_episode_steps=max_episode_steps)
         # Configuration
         self.n_static_obstacles = n_static_obstacles
         self.n_dynamic_obstacles = n_dynamic_obstacles
@@ -93,7 +103,7 @@ class CarRacingObstacles(BaseCarRacing):
         self._track_y = None
 
         self.currentIters=0
-        self.maxIters=1000
+        self.maxIters = int(max_episode_steps)
 
         # ---- rule / reward parameters ----
         # Static obstacle collision: big negative + episode end
@@ -120,7 +130,6 @@ class CarRacingObstacles(BaseCarRacing):
         # internal state
         self.still_time = 0.0                  # how long we've been stopped
         self.offroad_time = 0.0                # how long we've been off-road (green or mountain)
-        self.was_on_start = False
 
 
     # --------------------------------------------------------------------------
@@ -171,8 +180,7 @@ class CarRacingObstacles(BaseCarRacing):
         # Destroy previous extras first
         self._destroy_extras()
 
-        if seed==None:
-            seed = random.randint(11, 65556)
+        # Gymnasium retains the environment RNG on unseeded resets.
         obs, info = super().reset(seed=seed, options=options)
 
         # Build cached track centerline arrays
@@ -197,7 +205,12 @@ class CarRacingObstacles(BaseCarRacing):
         if self.use_ghost:
             self._create_ghost()
 
-        return obs, info
+        # The parent initializes the car first; render after creating all extras.
+        self._update_dynamic_obstacles()
+        self.state = self._render("state_pixels")
+        if self.render_mode == "human":
+            self.render()
+        return self.state, info
 
 
 
@@ -336,12 +349,10 @@ class CarRacingObstacles(BaseCarRacing):
 
         return False
 
-    def _regenerate_track_tiles(self):
-        """Allow tiles to give +1000/N again, for multiple laps."""
-        for t in self.road:
-            t.road_visited = False
-        self.tile_visited_count = 0
-        self.new_lap = False  # reset flag set by contact listener
+    def _before_physics_step(self):
+        # Contact detection and observation rendering must see the same positions.
+        self._update_dynamic_obstacles(time=self.t + 1.0 / FPS)
+        self._update_ghost()
 
     # --------------------------------------------------------------------------
     # Step override: add rules & extra rewards
@@ -405,25 +416,15 @@ class CarRacingObstacles(BaseCarRacing):
         else:
             info["moving_on_track"] = False
 
-        # ---- 5) Handle laps: regenerate tiles but do NOT terminate ----
-        tile_idx = self.tile_idx
-        if (tile_idx==0):
-            if not self.was_on_start and self.tile_visited_count > 5:
-
-                # We've completed a lap: regenerate tiles
-                self._regenerate_track_tiles()
-                # keep episode running
-                terminated = False
-                info["lap_finished"] = True  # keep flag for students / logging
-        else:
-            self.was_on_start = False
- 
-        # ---- 6) Update dynamic obstacles and ghost car after physics ----
-        self._update_dynamic_obstacles()
-        self._update_ghost()
-        self.currentIters=self.currentIters+1
-        if self.currentIters>=self.maxIters and truncated==False:
-            terminated=True
+        # A real lap ends the single-lap task; no reward/visited flags are reset.
+        # Never cancel a failure set by the parent or collision/stuck checks.
+        failure = bool(hit_static or info.get("stuck", False)
+                       or info.get("offroad_too_long", False)
+                       or info.get("out_of_bounds", False))
+        info["is_success"] = bool(info.get("lap_finished", False) and not failure)
+        self.currentIters += 1
+        if self.currentIters >= self.maxIters and not terminated:
+            truncated = True
 
         return obs, reward, terminated, truncated, info
 
@@ -510,7 +511,7 @@ class CarRacingObstacles(BaseCarRacing):
 
             if not placed and self.verbose:
                 print(f"[CarRacingObstacles] Could not place mountain around tile {idx}")
-            else:
+            elif self.verbose:
                 print(f"[CarRacingObstacles] Placed mountain around tile {idx}")
 
 
@@ -570,7 +571,7 @@ class CarRacingObstacles(BaseCarRacing):
 
         dyn = {
             "body": body,
-            "center": np.array([x, y], dtype=np.float32),
+            "center": (float(x), float(y)),
             "perp_angle": float(perp_angle),
             "amp": float(amp),
             "speed": float(speed),
@@ -626,14 +627,14 @@ class CarRacingObstacles(BaseCarRacing):
     # --------------------------------------------------------------------------
     # Dynamic obstacle motion
     # --------------------------------------------------------------------------
-    def _update_dynamic_obstacles(self) -> None:
+    def _update_dynamic_obstacles(self, time: Optional[float] = None) -> None:
         """
         Move kinematic dynamic obstacles along their sinusoidal paths.
         """
         if not self.dynamic_obstacles:
             return
 
-        t = getattr(self, "t", 0.0)  # simulation time from base env
+        t = float(self.t if time is None else time)
         for dyn in self.dynamic_obstacles:
             body = dyn["body"]
             cx, cy = dyn["center"]
@@ -647,7 +648,7 @@ class CarRacingObstacles(BaseCarRacing):
             dx = amp * s * math.cos(ang)
             dy = amp * s * math.sin(ang)
 
-            body.position = (cx + dx, cy + dy)
+            body.position = (float(cx + dx), float(cy + dy))
             body.linearVelocity = (0.0, 0.0)
             body.angularVelocity = 0.0
 
@@ -684,8 +685,8 @@ class CarRacingObstacles(BaseCarRacing):
             wx, wy = w.position
             dx, dy = wx - hx, wy - hy
             # rotate into hull local frame
-            lx = dx
-            ly = dy
+            lx = ca * dx - sa * dy
+            ly = sa * dx + ca * dy
             self._ghost_wheel_local.append((lx, ly, w))
 
         self.ghost_progress = 0.0
@@ -696,7 +697,7 @@ class CarRacingObstacles(BaseCarRacing):
                 return
 
             # Advance ghost along tiles at constant "tile velocity"
-            self.ghost_progress += self.ghost_speed_tiles_per_sec * (4.0 / FPS)
+            self.ghost_progress += self.ghost_speed_tiles_per_sec / FPS
             idx = int(self.ghost_progress) % len(self.track)
             _, beta, x, y = self.track[idx]
 
@@ -835,6 +836,16 @@ class CarRacingObstacles(BaseCarRacing):
                 angle,
                 draw_particles=False,
             )
+
+
+def register():
+    """Register the environment once; importing the module is sufficient."""
+    if "CarRacingObstacles-v3" not in gym.envs.registry:
+        gym.register(id="CarRacingObstacles-v3",
+                     entry_point="car_racing_obstacles:CarRacingObstacles")
+
+
+register()
 
 
 # --------------------------------------------------------------------------

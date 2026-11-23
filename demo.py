@@ -1,10 +1,7 @@
 import gymnasium as gym
 #import car_racing_obstacles  # or your package that does the registration
 from car_racing_obstacles import CarRacingObstacles
-gym.register(
-    id="CarRacingObstacles-v3",
-    entry_point="car_racing_obstacles:CarRacingObstacles",
-)
+
 
 import numpy as np
 import pygame

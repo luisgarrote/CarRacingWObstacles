@@ -168,6 +168,13 @@ class Car:
             w.userData = w
             self.wheels.append(w)
         self.drawlist = self.wheels + [self.hull]
+        if ghost:
+            # A visual ghost must not produce contacts, forces, or tile rewards.
+            for body in self.drawlist:
+                for fixture in body.fixtures:
+                    fixture.filterData = Box2D.b2Filter(categoryBits=0, maskBits=0)
+                    fixture.sensor = True
+
         self.particles = []
 
     def gas(self, gas):
