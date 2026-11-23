@@ -62,6 +62,117 @@ information is needed. SB3 handles image intensity normalization. Import
 Zoo workers. The installed wheel includes the modules, so importing does not
 require running from this source directory.
 
+## Student workflow with Stable-Baselines3
+
+The examples use SB3 directly: `PPO(...).learn(...)`, `model.save(...)` and
+`PPO.load(...)`. Start with [examples/quickstart.ipynb](examples/quickstart.ipynb)
+or the short [training script](examples/train_ppo.py). Run these commands from
+the cloned repository after installing `.[sb3]`.
+
+```sh
+# 1. Train and save a model, configuration, episode log and reward graph.
+python examples/train_ppo.py --steps 100000 --seed 0 --output outputs/ppo_seed0
+# 2. Recreate the graph from the saved episode log at any time.
+python examples/plot_rewards.py --log outputs/ppo_seed0/training.monitor.csv --output outputs/ppo_seed0/rewards.png
+# 3. Load the saved model and run one fixed scenario.
+python examples/run_model.py --run outputs/ppo_seed0 --case normal_1
+# 4. Evaluate all ten fixed cases and retain every result, including failures.
+python examples/evaluate.py --run outputs/ppo_seed0
+# 5. Record one complete episode as MP4.
+python examples/record_video.py --run outputs/ppo_seed0 --case normal_1 --output outputs/ppo_seed0/demo.mp4
+```
+
+The budget above is an example, not a promise of a successful policy. Each training
+run needs a new output directory. Change `--seed` and `--output` for independent
+training runs; report results across training seeds. The examples use one
+`DummyVecEnv` environment and CPU execution to keep the code readable.
+
+### Episode returns: raw and last 100 episodes
+
+`Monitor` saves the **sum of rewards per completed episode**, before any reward
+normalization, in `training.monitor.csv`. [plot_rewards.py](examples/plot_rewards.py)
+uses Python's `csv` module, NumPy and Matplotlib; no pandas or dashboard is needed.
+The essential calculation is:
+
+```python
+# rewards[i] is the total reward of episode i, in chronological order.
+average = np.array([
+    rewards[max(0, i - 99):i + 1].mean() for i in range(len(rewards))
+])
+plt.plot(rewards, alpha=0.45, label="Raw episode return")
+plt.plot(average, label="Mean of last 100 episodes")
+plt.xlabel("Completed episode")
+plt.ylabel("Total reward")
+plt.legend()
+```
+
+Before 100 episodes exist, the mean uses all available completed episodes.
+`rewards.png` contains both curves; `rewards.csv` contains their numerical values (see the [example data](docs/example_rewards.csv)).
+An unfinished final episode is not included. Training logs are separate from the
+held-out evaluation results.
+
+![Raw episode returns and trailing 100-episode mean](docs/images/reward_curve.png)
+
+This example graph comes from a **2,048-transition integration check with a
+16-step episode cap**, not a trained benchmark result. Use the normal episode
+horizon for your experiments.
+
+### Saved model, evaluation statistics and video
+
+Keep `model.zip` and `config.json` together. The run/evaluation/video scripts
+restore the same observation history. SB3 chooses deterministic actions for these
+scripts. Training uses raw rewards and does not apply `VecNormalize`.
+
+`evaluate.py` writes `evaluation.csv` and `evaluation.json` inside the run folder:
+all ten episode returns, lengths, success and termination/truncation flags, plus
+**mean return, population standard deviation and success rate for each group**.
+Task-specific columns include contact steps and, for the forklift, pickup events,
+delivery events and pallets delivered. CarRacing contact steps count the reported
+static-obstacle collision flag only. Failed episodes are retained.
+
+[record_video.py](examples/record_video.py) captures the initial frame and every
+simulation step, including the final frame, without action/frame skipping. Frames
+are streamed to MP4, with the longer side limited to 640 pixels. The accompanying
+JSON records the case, return, success and frame rate. Video uses simulation time;
+it does not affect policy observations. Video encoding dependencies are included
+in `.[sb3]`.
+
+`--max-steps 16` is available for quick integration checks in all scripts; it
+changes the task horizon. Shortened evaluation files are named
+`evaluation_short_16.*` and must not be reported as benchmark scores.
+
+### CarRacing training settings and fixed evaluation scenarios
+
+The demo uses continuous controls, `CnnPolicy` and four recent RGB frames
+(`--history 4`, giving 12 channels). SB3 scales uint8 pixel intensities internally.
+Training samples tracks on reset. Add `--randomize` to vary appearance during
+training; `--obstacles N` and `--traffic N` enable extra hazards. The assignment's
+standard evaluation suite has no added obstacles, mountains or ghost.
+
+[evaluation_cases.json](examples/evaluation_cases.json) freezes the seeds and all
+environment settings for five standard tracks and five appearance-randomized
+cases. The latter are **not paired copies of the standard track geometry**:
+appearance and track generation both consume random numbers.
+
+| Group | Case IDs | Reset seeds | Appearance randomization | Step cap |
+|---|---|---|---|---:|
+| Standard | `normal_1`–`normal_5` | 20001–20005 | Off | 1000 |
+| Randomized | `randomized_1`–`randomized_5` | 21001–21005 | On | 1000 |
+
+```sh
+python examples/train_ppo.py --randomize --steps 300000 --seed 0 --output outputs/random_seed0
+python examples/run_model.py --run outputs/random_seed0 --case randomized_1
+python examples/record_video.py --run outputs/random_seed0 --case randomized_1 --output outputs/random_seed0/randomized.mp4
+```
+
+Success is the environment's successful lap flag. Reuse the same ten held-out
+cases for every method and retain failures. Do not train or choose hyperparameters
+on these seeds; use separate validation seeds. Record the code revision, package
+versions and manifest with your results; seeded track generation is tied to the
+implementation. The provided demo uses PPO. For DQN, select discrete actions and
+use its corresponding model class when training/loading; DDPG and TD3 require
+continuous actions. A2C supports either action type.
+
 ## Task semantics and reproducibility
 
 - Only the learner's wheels earn new-tile rewards. The ghost is visible but

@@ -24,3 +24,22 @@ jobs:
         run: |
           cd "${{ runner.temp }}"
           python -c "import car_racing_obstacles, gymnasium as gym; e=gym.make('CarRacingObstacles-v3', render_mode='rgb_array'); o,_=e.reset(seed=123); assert o.shape==(96,96,3); e.close()"
+  sb3:
+    runs-on: ubuntu-latest
+    env:
+      SDL_VIDEODRIVER: dummy
+      SDL_AUDIODRIVER: dummy
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip setuptools wheel swig
+      - run: python -m pip install --no-build-isolation -r requirements.txt
+      - run: python -m pip install ".[sb3]"
+      - run: python examples/train_ppo.py --steps 128 --rollout 64 --batch-size 32 --epochs 1 --max-steps 16 --output outputs/ci
+      - run: python examples/plot_rewards.py --log outputs/ci/training.monitor.csv --output outputs/ci/replotted.png
+      - run: python examples/run_model.py --run outputs/ci --case normal_1 --max-steps 8
+      - run: python examples/evaluate.py --run outputs/ci --max-steps 8
+      - run: python examples/record_video.py --run outputs/ci --case randomized_1 --max-steps 8 --output outputs/ci/demo.mp4

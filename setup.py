@@ -9,7 +9,8 @@ setup(
         "gymnasium>=1.0,<2", "box2d-py==2.3.8",
         "pygame-ce>=2.5,<3", "numpy>=1.23,<3",
     ],
-    extras_require={"sb3": ["stable-baselines3>=2.7,<3"]},
+    extras_require={"sb3": ["stable-baselines3>=2.7,<3", "matplotlib>=3.6,<4",
+                            "imageio>=2.31,<3", "imageio-ffmpeg>=0.4.9,<1"]},
     description="Extended CarRacing-v3 environment with obstacles and a visual ghost.",
     author="APA2025 - LG",
 )

@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "description": "Held-out seeds: five fixed-appearance tracks and five randomized-appearance tracks. Freeze these cases for final testing.",
+  "cases": [
+    {
+      "id": "normal_1",
+      "group": "normal",
+      "seed": 20001,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "normal_2",
+      "group": "normal",
+      "seed": 20002,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "normal_3",
+      "group": "normal",
+      "seed": 20003,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "normal_4",
+      "group": "normal",
+      "seed": 20004,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "normal_5",
+      "group": "normal",
+      "seed": 20005,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "randomized_1",
+      "group": "randomized",
+      "seed": 21001,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "randomized_2",
+      "group": "randomized",
+      "seed": 21002,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "randomized_3",
+      "group": "randomized",
+      "seed": 21003,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "randomized_4",
+      "group": "randomized",
+      "seed": 21004,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "randomized_5",
+      "group": "randomized",
+      "seed": 21005,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    }
+  ]
+}
