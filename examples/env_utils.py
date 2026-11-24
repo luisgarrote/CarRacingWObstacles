@@ -15,6 +15,10 @@ def load_cases():
     return json.loads(CASES_PATH.read_text())["cases"]
 
 
+def load_validation_cases():
+    return json.loads(Path(__file__).with_name("validation_cases.json").read_text())["cases"]
+
+
 def get_case(case_id):
     return next(case for case in load_cases() if case["id"] == case_id)
 

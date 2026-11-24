@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "description": "Five random tracks with fixed appearance and five random tracks with randomized appearance. Reserved for checkpoint selection, not final testing.",
+  "cases": [
+    {
+      "id": "val_normal_1",
+      "group": "normal",
+      "seed": 10001,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_normal_2",
+      "group": "normal",
+      "seed": 10002,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_normal_3",
+      "group": "normal",
+      "seed": 10003,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_normal_4",
+      "group": "normal",
+      "seed": 10004,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_normal_5",
+      "group": "normal",
+      "seed": 10005,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": false,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_randomized_1",
+      "group": "randomized",
+      "seed": 11001,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_randomized_2",
+      "group": "randomized",
+      "seed": 11002,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_randomized_3",
+      "group": "randomized",
+      "seed": 11003,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_randomized_4",
+      "group": "randomized",
+      "seed": 11004,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    },
+    {
+      "id": "val_randomized_5",
+      "group": "randomized",
+      "seed": 11005,
+      "max_steps": 1000,
+      "env_kwargs": {
+        "continuous": true,
+        "domain_randomize": true,
+        "n_static_obstacles": 0,
+        "n_dynamic_obstacles": 0,
+        "n_mountains": 0,
+        "use_ghost": false
+      }
+    }
+  ],
+  "split": "validation"
+}

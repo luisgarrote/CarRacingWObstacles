@@ -68,12 +68,25 @@ require running from this source directory.
 
 The **Colab demo notebook** installs its dependencies and trains PPO for **500
 completed training episodes**. It displays raw total reward per episode and the
-mean of the last 100 episodes, selects `best_model.zip` using five separate
-validation seeds every 25 episodes, and embeds a video of that checkpoint.
+mean of the last 100 episodes, selects `best_model.zip` using a separate **5+5 validation suite**
+every 25 episodes, and embeds a video of that checkpoint.
 Validation episodes are additional to the 500 training episodes. Final testing
 uses the ten supplied cases only after model selection. The notebook includes
 an optional download of models, logs, graph, test statistics and MP4.
 
+
+[The validation manifest](examples/validation_cases.json) has five random tracks
+with fixed appearance (seeds 10001–10005) and five random tracks with appearance
+randomization (11001–11005). The final test manifest keeps its separate
+20001–20005/21001–21005 seeds. The notebook lists the ten validation scenarios,
+shows per-case and per-group results, and plots validation returns for both groups.
+
+Best-model selection maximizes the mean raw return over all ten validation cases
+(equal weight to each five-case group). `validation.csv` retains every episode;
+`validation_summary.csv` saves overall and group means, standard deviations and
+success rates at each checkpoint. The complete validation scenes are copied to
+the run directory for reproducibility. Validation episodes are additional to the
+500 training episodes.
 
 The examples use SB3 directly: `PPO(...).learn(...)`, `model.save(...)` and
 `PPO.load(...)`. Start with [examples/quickstart.ipynb](examples/quickstart.ipynb)
