@@ -441,9 +441,12 @@ class CarRacingObstacles(BaseCarRacing):
         for k in range(num_vertices):
             ang = 2.0 * math.pi * k / num_vertices
             r = radius * self.np_random.uniform(0.8, 1.15)
-            verts.append((x + r * math.cos(ang), y + r * math.sin(ang)))
+            # Fixture vertices are local to the body. Keeping the actual world
+            # centre on the body also makes the radial hazard check correct.
+            verts.append((r * math.cos(ang), r * math.sin(ang)))
 
         body = self.world.CreateStaticBody(
+            position=(x, y),
             fixtures=fixtureDef(
                 shape=polygonShape(vertices=verts),
                 density=0.1,

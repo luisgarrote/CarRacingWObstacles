@@ -232,7 +232,15 @@ continuous actions. A2C supports either action type.
   track generation draw from the environment RNG. A fixed-appearance run can
   still generate different tracks.
 
-### Version 0.2.0 migration
+### Version 0.2.x migration
+
+Version 0.2.1 fixes mountain body coordinates: the polygon is now local to its
+body, whose position is the actual mountain centre. The rendered mountain and
+its radial hazard check therefore agree. Re-evaluate mountain-enabled scenarios
+after updating; the earlier check incorrectly tested a region around the world
+origin. Set `n_mountains=5` to request mountains and trees; their actual placed
+counts depend on track clearance. Road blocks use the separate
+`n_static_obstacles` parameter.
 
 This release fixes empty wheels, automatic registration, false lap events,
 repeated tile rewards, ghost reward attribution/collisions, cancelled failure

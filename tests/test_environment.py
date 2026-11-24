@@ -176,6 +176,16 @@ class EnvironmentRegressionTests(unittest.TestCase):
         self.assertTrue(restored.use_ghost)
         self.assertEqual(restored.maxIters, 37)
 
+    def test_mountain_hazard_matches_rendered_world_location(self):
+        env = self.make()
+        env.reset(seed=123)
+        mountain = env._create_mountain_body(40.0, 50.0, 3.0)
+        np.testing.assert_allclose(mountain.position, (40.0, 50.0))
+        polygon = np.asarray(env._world_poly_from_body(mountain))
+        self.assertTrue(np.all(np.linalg.norm(polygon - [40.0, 50.0], axis=1) < 3.6))
+        self.assertTrue(env._on_hazard(40.0, 50.0))
+        self.assertFalse(env._on_hazard(0.0, 0.0))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="car_racing_obstacles",
-    version="0.2.0",
+    version="0.2.1",
     py_modules=["car_racing_obstacles", "car_racing", "car_dynamics", "register_envs"],
     python_requires=">=3.10",
     install_requires=[
