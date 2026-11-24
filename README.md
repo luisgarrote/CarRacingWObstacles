@@ -85,6 +85,9 @@ Validation episodes are additional to the 500 training episodes. Final testing
 uses the ten supplied cases only after model selection. The notebook includes
 an optional download of models, logs, graph, test statistics and MP4.
 
+The notebook calls `CarRacingObstacles` directly, lists its native control,
+appearance and obstacle parameters, and shows each SB3 wrapper in order.
+Environment construction is visible in training, validation and testing.
 
 [The validation manifest](examples/validation_cases.json) has five random tracks
 with fixed appearance (seeds 10001–10005) and five random tracks with appearance
