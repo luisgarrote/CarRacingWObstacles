@@ -26,13 +26,30 @@ python -m venv .venv
 # macOS/Linux:
 source .venv/bin/activate
 # Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip setuptools wheel swig
+python -m pip install --upgrade pip "setuptools>=68,<74" wheel swig
 python -m pip install --no-build-isolation -r requirements.txt
 python -m pip install -e ".[sb3]"
 ```
 
 Omit `[sb3]` for the environment alone. `pygame-ce` provides the `pygame` import;
 avoid installing it alongside the separate `pygame` distribution.
+
+### Box2D build error on an existing Python installation
+
+If installation ends with `ModuleNotFoundError: No module named
+'distutils.msvccompiler'`, the Box2D build has picked up legacy NumPy/Cython
+build tools and a newer setuptools that removed the module they import.
+From this repository directory, run:
+
+```sh
+python -m pip install --upgrade "setuptools>=68,<74" wheel swig
+python -m pip install --no-build-isolation ".[sb3]"
+```
+
+The notebook uses the same setuptools constraint. If you copied its installation
+cell into a Python script, replace the bare `"setuptools"` entry there with
+`"setuptools>=68,<74"` too, so rerunning the script preserves the fix.
+NumPy and Cython do not need to be downgraded for this missing-module error.
 
 ## Use
 
