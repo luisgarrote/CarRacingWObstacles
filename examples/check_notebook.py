@@ -1,6 +1,6 @@
 """Execute the actual Colab notebook with short budgets for integration checks."""
 import argparse
-import json
+import os
 from pathlib import Path
 import nbformat
 from nbclient import NotebookClient
@@ -10,6 +10,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="outputs/notebook_check.ipynb")
     args = parser.parse_args()
+    # Match headless CI even when this check is run locally.
+    os.environ["MPLBACKEND"] = "Agg"
     repo = Path(__file__).resolve().parents[1]
     nb = nbformat.read(repo/"examples/quickstart.ipynb", as_version=4)
     kept = [cell for cell in nb.cells if cell.get("id") not in ("install", "download")]
@@ -50,7 +52,7 @@ print("NOTEBOOK CHECK PASSED:", RUN)
         client.execute()
         plot_cell = next(cell for cell in nb.cells if cell.get("id") == "plot")
         video_cell = next(cell for cell in nb.cells if cell.get("id") == "video")
-        assert any("image/png" in output.get("data", {}) for output in plot_cell.outputs)
+        assert any("image/png" in output.get("data", {}) for output in plot_cell.outputs), "Reward graph was not embedded as a PNG in the notebook"
         assert any("<video" in output.get("data", {}).get("text/html", "") for output in video_cell.outputs)
     finally:
         nbformat.write(nb, output)
