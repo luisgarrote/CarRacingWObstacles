@@ -46,3 +46,6 @@ jobs:
       - run: python examples/train_ppo.py --episodes 12 --history 4 --action-repeat 3 --rollout 32 --batch-size 16 --epochs 1 --max-steps 16 --output outputs/persistent
       - run: python examples/run_model.py --run outputs/persistent --case normal_1 --max-steps 8
       - run: python examples/record_video.py --run outputs/persistent --case normal_1 --max-steps 8 --output outputs/persistent/demo.mp4
+      - run: python examples/train_dqn.py --episodes 12 --history 4 --action-repeat 3 --max-steps 16 --buffer-size 128 --batch-size 16 --learning-starts 16 --output outputs/dqn
+      - run: python examples/run_model.py --run outputs/dqn --case normal_1 --max-steps 8
+      - run: python examples/record_video.py --run outputs/dqn --case normal_1 --max-steps 8 --output outputs/dqn/demo.mp4

@@ -156,6 +156,19 @@ held for three physics frames:
 python examples/train_ppo.py --episodes 500 --history 4 --action-repeat 3 --seed 0 --output outputs/ppo_h4_repeat3_seed0
 ```
 
+For DQN with the same history, persistence and episode target, use the native
+five-action discrete control mode:
+
+```sh
+python examples/train_dqn.py --episodes 500 --history 4 --action-repeat 3 --seed 0 --output outputs/dqn_h4_repeat3_seed0
+```
+
+The DQN demo uses a 10,000-transition replay buffer, 1,000 warm-up decisions,
+one update every four decisions and epsilon-greedy exploration. The replay
+buffer stores both image stacks and next stacks (roughly 2.2 GB at this size).
+The same run/evaluation/video scripts read the algorithm and action mode from
+`config.json` and work with either saved PPO or DQN models.
+
 `--episodes` replaces the timestep stopping budget. The SB3 callback stops when
 the episode count is reached. SB3 timesteps count **policy decisions**: one PPO
 iteration collects `--rollout` decisions (512 by default) before updating. With

@@ -6,6 +6,7 @@ import gymnasium as gym
 import numpy as np
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
 from action_repeat import ActionRepeat
+from stable_baselines3 import DQN, PPO
 
 CASES_PATH = Path(__file__).with_name("evaluation_cases.json")
 
@@ -16,6 +17,13 @@ def load_cases():
 
 def get_case(case_id):
     return next(case for case in load_cases() if case["id"] == case_id)
+
+
+def load_model(run, env=None):
+    run = Path(run)
+    config = json.loads((run/"config.json").read_text())
+    model_class = {"PPO": PPO, "DQN": DQN}[config.get("algorithm", "PPO")]
+    return model_class.load(str(run/"model.zip"), env=env, device="cpu")
 
 
 def episode(model, env, seed):
@@ -66,10 +74,13 @@ POLICY = "CnnPolicy"
 VIDEO_FPS = 50
 
 
-def make_env(case=None, max_steps=None, traffic=0, obstacles=0, randomize=False, action_repeat=1):
-    settings = case["env_kwargs"] if case is not None else dict(
+def make_env(case=None, max_steps=None, traffic=0, obstacles=0, randomize=False,
+             action_repeat=1, continuous=None):
+    settings = dict(case["env_kwargs"]) if case is not None else dict(
         continuous=True, domain_randomize=randomize,
         n_static_obstacles=obstacles, n_dynamic_obstacles=traffic)
+    if continuous is not None:
+        settings["continuous"] = continuous
     env = gym.make("CarRacingObstacles-v3", render_mode="rgb_array",
                    max_episode_steps=max_steps or (case["max_steps"] if case else 1000), **settings)
     return ActionRepeat(env, action_repeat)

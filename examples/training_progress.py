@@ -1,4 +1,4 @@
-"""Episode-based stopping, live statistics and occasional PPO checkpoints."""
+"""Episode-based stopping, live statistics and occasional SB3 checkpoints."""
 import json
 import time
 import numpy as np

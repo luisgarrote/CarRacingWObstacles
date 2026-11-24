@@ -3,8 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import torch
-from stable_baselines3 import PPO
-from env_utils import make_env, prepare_env, load_cases, episode, save_results
+from env_utils import make_env, prepare_env, load_cases, episode, save_results, load_model
 
 
 def main():
@@ -14,11 +13,12 @@ def main():
     args = parser.parse_args()
     run = Path(args.run); config = json.loads((run/"config.json").read_text())
     torch.set_num_threads(1)
-    model = PPO.load(str(run/"model.zip"),device="cpu")
+    model = load_model(run)
     rows = []
     for case in load_cases():
         env = prepare_env(make_env(case,max_steps=args.max_steps,
-                                  action_repeat=config.get("action_repeat", 1)),config["history"])
+                                  action_repeat=config.get("action_repeat", 1),
+                                  continuous=config.get("algorithm", "PPO") != "DQN"),config["history"])
         try:
             result = episode(model,env,case["seed"])
             rows.append(dict(case_id=case["id"],group=case["group"],**result))
