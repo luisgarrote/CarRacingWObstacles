@@ -1,0 +1,11 @@
+case_id,group,seed,episode_return,length,simulator_frames,success,contact_steps,terminated,truncated
+normal_1,normal,20001,997.6000127792352,269,807,True,0,True,False
+normal_2,normal,20002,963.67860391736,334,1000,False,0,False,True
+normal_3,normal,20003,890.3368763774588,334,1000,False,0,False,True
+normal_4,normal,20004,974.8946425318713,269,807,True,0,True,False
+normal_5,normal,20005,994.397034451364,334,1000,False,0,False,True
+randomized_1,randomized,21001,-5.00422784686111,334,1000,False,0,False,True
+randomized_2,randomized,21002,-70.24345082044601,84,251,False,0,True,False
+randomized_3,randomized,21003,-70.24345111846924,86,257,False,0,True,False
+randomized_4,randomized,21004,-61.13726559281348,123,369,False,0,True,False
+randomized_5,randomized,21005,-70.5393425822258,84,251,False,0,True,False

@@ -1,0 +1,167 @@
+{
+  "training": {
+    "algorithm": "DQN",
+    "training_seed": 0,
+    "completed_episodes": 500,
+    "policy_decisions": 150869,
+    "simulator_frames": 451825,
+    "mean_training_return_last_100": 909.7340155500001
+  },
+  "video": {
+    "algorithm": "DQN",
+    "checkpoint": "Final checkpoint after 500 training episodes",
+    "case_id": "normal_1",
+    "group": "normal",
+    "deterministic": true,
+    "fps": 50,
+    "omitted_opening_frames": 50,
+    "video_frames": 758,
+    "seed": 20001,
+    "episode_return": 997.6000127792352,
+    "length": 269,
+    "simulator_frames": 807,
+    "success": true,
+    "contact_steps": 0,
+    "terminated": true,
+    "truncated": false
+  },
+  "evaluation": {
+    "episodes": [
+      {
+        "case_id": "normal_1",
+        "group": "normal",
+        "seed": 20001,
+        "episode_return": 997.6000127792352,
+        "length": 269,
+        "simulator_frames": 807,
+        "success": true,
+        "contact_steps": 0,
+        "terminated": true,
+        "truncated": false
+      },
+      {
+        "case_id": "normal_2",
+        "group": "normal",
+        "seed": 20002,
+        "episode_return": 963.67860391736,
+        "length": 334,
+        "simulator_frames": 1000,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": false,
+        "truncated": true
+      },
+      {
+        "case_id": "normal_3",
+        "group": "normal",
+        "seed": 20003,
+        "episode_return": 890.3368763774588,
+        "length": 334,
+        "simulator_frames": 1000,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": false,
+        "truncated": true
+      },
+      {
+        "case_id": "normal_4",
+        "group": "normal",
+        "seed": 20004,
+        "episode_return": 974.8946425318713,
+        "length": 269,
+        "simulator_frames": 807,
+        "success": true,
+        "contact_steps": 0,
+        "terminated": true,
+        "truncated": false
+      },
+      {
+        "case_id": "normal_5",
+        "group": "normal",
+        "seed": 20005,
+        "episode_return": 994.397034451364,
+        "length": 334,
+        "simulator_frames": 1000,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": false,
+        "truncated": true
+      },
+      {
+        "case_id": "randomized_1",
+        "group": "randomized",
+        "seed": 21001,
+        "episode_return": -5.00422784686111,
+        "length": 334,
+        "simulator_frames": 1000,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": false,
+        "truncated": true
+      },
+      {
+        "case_id": "randomized_2",
+        "group": "randomized",
+        "seed": 21002,
+        "episode_return": -70.24345082044601,
+        "length": 84,
+        "simulator_frames": 251,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": true,
+        "truncated": false
+      },
+      {
+        "case_id": "randomized_3",
+        "group": "randomized",
+        "seed": 21003,
+        "episode_return": -70.24345111846924,
+        "length": 86,
+        "simulator_frames": 257,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": true,
+        "truncated": false
+      },
+      {
+        "case_id": "randomized_4",
+        "group": "randomized",
+        "seed": 21004,
+        "episode_return": -61.13726559281348,
+        "length": 123,
+        "simulator_frames": 369,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": true,
+        "truncated": false
+      },
+      {
+        "case_id": "randomized_5",
+        "group": "randomized",
+        "seed": 21005,
+        "episode_return": -70.5393425822258,
+        "length": 84,
+        "simulator_frames": 251,
+        "success": false,
+        "contact_steps": 0,
+        "terminated": true,
+        "truncated": false
+      }
+    ],
+    "summary": {
+      "normal": {
+        "episodes": 5,
+        "mean_return": 964.1814340114579,
+        "std_return": 38.98160664690103,
+        "success_rate": 0.4
+      },
+      "randomized": {
+        "episodes": 5,
+        "mean_return": -55.43354759216313,
+        "std_return": 25.465663970830413,
+        "success_rate": 0.0
+      }
+    }
+  },
+  "notes": "One final DQN checkpoint; raw training returns and separate deterministic held-out test scores."
+}

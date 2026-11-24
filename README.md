@@ -6,6 +6,13 @@ A Gymnasium CarRacing environment with static obstacles, moving obstacles,
 mountains/trees, and an optional **visual-only ghost car**. The learner controls
 one car. Observations are 96 x 96 RGB images (`uint8`).
 
+[![DQN agent completing a held-out CarRacing track](docs/images/dqn_car_racing_preview.gif)](docs/media/dqn_car_racing.mp4)
+
+[Watch or download the DQN video (MP4, 15.16 seconds)](docs/media/dqn_car_racing.mp4).
+The final checkpoint from a 500-episode DQN run completes held-out case `normal_1`
+(seed 20001) with deterministic discrete actions and a return of **997.60**.
+The opening camera zoom is omitted from the movie.
+
 ## Install
 
 Use Python 3.10+ in an activated virtual environment. Python 3.11 and 3.12 are
@@ -139,11 +146,23 @@ Before 100 episodes exist, the mean uses all available completed episodes.
 An unfinished final episode is not included. Training logs are separate from the
 held-out evaluation results.
 
-![Raw episode returns and trailing 100-episode mean](docs/images/reward_curve.png)
+![DQN training over 500 episodes: raw returns and the last-100 mean](docs/images/reward_curve.png)
 
-This example graph comes from a **2,048-transition integration check with a
-16-step episode cap**, not a trained benchmark result. Use the normal episode
-horizon for your experiments.
+This graph is the completed **500-episode DQN training run** (seed 0):
+**150,869 policy decisions**, **451,825 physics frames**, and a **909.73 mean
+training return over the last 100 episodes**. The blue curve retains every
+completed episode; the orange curve is the trailing mean.
+
+The same final checkpoint was evaluated on the ten fixed test cases:
+
+| Held-out test group | Episodes | Mean return | Std. return | Successful laps |
+|---|---:|---:|---:|---:|
+| Random tracks, fixed appearance | 5 | 964.18 | 38.98 | 2/5 |
+| Random tracks, randomized appearance | 5 | -55.43 | 25.47 | 0/5 |
+
+These test results are separate from the training curve. See the
+[complete run and video results](docs/dqn_demo_results.json) and
+[all ten test episodes](docs/dqn_evaluation.csv).
 
 ### Saved model, evaluation statistics and video
 
