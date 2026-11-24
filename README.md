@@ -1,5 +1,7 @@
 # CarRacingObstacles-v3
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/luisgarrote/CarRacingWObstacles/blob/main/examples/quickstart.ipynb)
+
 A Gymnasium CarRacing environment with static obstacles, moving obstacles,
 mountains/trees, and an optional **visual-only ghost car**. The learner controls
 one car. Observations are 96 x 96 RGB images (`uint8`).
@@ -63,6 +65,15 @@ Zoo workers. The installed wheel includes the modules, so importing does not
 require running from this source directory.
 
 ## Student workflow with Stable-Baselines3
+
+The **Colab demo notebook** installs its dependencies and trains PPO for **500
+completed training episodes**. It displays raw total reward per episode and the
+mean of the last 100 episodes, selects `best_model.zip` using five separate
+validation seeds every 25 episodes, and embeds a video of that checkpoint.
+Validation episodes are additional to the 500 training episodes. Final testing
+uses the ten supplied cases only after model selection. The notebook includes
+an optional download of models, logs, graph, test statistics and MP4.
+
 
 The examples use SB3 directly: `PPO(...).learn(...)`, `model.save(...)` and
 `PPO.load(...)`. Start with [examples/quickstart.ipynb](examples/quickstart.ipynb)
@@ -251,8 +262,8 @@ obstacle and horizon settings.
 
 **Retrain policies and regenerate benchmark results** after updating. Returns and
 lap counts from the earlier task implementation are not directly comparable.
-The legacy DQN notebook remains an exercise with TODO cells, rather than an SB3
-implementation. Its replay buffer now keeps a monotonic insertion counter.
+The obsolete APA2025 exercise notebook has been removed. Use the Colab-ready
+SB3 notebook in `examples/quickstart.ipynb`.
 
 ## Checks
 

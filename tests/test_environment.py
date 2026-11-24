@@ -1,7 +1,5 @@
 """Regression checks for the classroom/SB3 contract (python -m unittest discover)."""
 import math
-import json
-from pathlib import Path
 import os
 import pickle
 import random
@@ -111,19 +109,6 @@ class EnvironmentRegressionTests(unittest.TestCase):
                 _, _, terminated, _, info = env.step(np.zeros(3, np.float32))
                 self.assertTrue(terminated)
                 self.assertFalse(info['is_success'])
-
-    def test_legacy_replay_buffer_after_wrap(self):
-        notebook = json.loads((Path(__file__).parents[1] / 'APA2025_DeepRL_PartI.ipynb').read_text())
-        source = next(''.join(cell['source']) for cell in notebook['cells']
-                      if ''.join(cell.get('source', [])).startswith('class ReplayBuffer:'))
-        namespace = {'np': np}
-        exec(source, namespace)
-        buffer = namespace['ReplayBuffer'](3)
-        for value in range(8):
-            buffer.store_tuples(value, value, value, value, False)
-        states, *_ = buffer.sample_buffer(3)
-        self.assertEqual(set(states), {5, 6, 7})
-        self.assertEqual(buffer.counter, 8)
 
     def test_internal_horizon_is_a_truncation(self):
         env = self.make(max_episode_steps=1)
