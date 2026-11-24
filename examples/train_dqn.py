@@ -16,7 +16,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--steps", type=int, default=100000)
     parser.add_argument("--episodes", type=int, default=None)
-    parser.add_argument("--history", type=int, default=4)
+    parser.add_argument("--history", type=int, default=1)
     parser.add_argument("--action-repeat", type=int, default=1)
     parser.add_argument("--max-steps", type=int, default=1000, help="physics frames per episode")
     parser.add_argument("--seed", type=int, default=0)

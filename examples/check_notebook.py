@@ -1,6 +1,7 @@
 """Execute the actual Colab notebook with short budgets for integration checks."""
 import argparse
 import os
+import tempfile
 from pathlib import Path
 import nbformat
 from nbclient import NotebookClient
@@ -15,7 +16,31 @@ def main():
     repo = Path(__file__).resolve().parents[1]
     nb = nbformat.read(repo/"examples/quickstart.ipynb", as_version=4)
     kept = [cell for cell in nb.cells if cell.get("id") not in ("install", "download")]
-    kept.insert(0, nbformat.v4.new_code_cell('import os\nos.environ["SDL_VIDEODRIVER"]="dummy"\nos.environ["SDL_AUDIODRIVER"]="dummy"\nfrom pathlib import Path\nREPO = Path('+repr(str(repo))+")"))
+    # Colab starts its kernel before pip installs the simulator, and its cwd
+    # is outside the checkout. Reproduce both conditions, without relying on
+    # editable-install hooks that only take effect at interpreter startup.
+    kernel_dir = tempfile.TemporaryDirectory(prefix="colab-kernel-check-")
+    target = str(Path(kernel_dir.name)/"installed_package")
+    setup = f'''
+import os, sys, subprocess, importlib
+from pathlib import Path
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+REPO = Path({str(repo)!r})
+sys.meta_path = [finder for finder in sys.meta_path
+                 if not getattr(finder, "__module__", "").startswith("__editable__")]
+sys.path = [value for value in sys.path
+             if Path(value or os.getcwd()).resolve() not in (REPO, REPO/"src")]
+target = Path({target!r})
+subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet",
+                       "--no-deps", "--target", str(target), str(REPO)])
+sys.path.insert(0, str(target))
+importlib.invalidate_caches()
+spec = importlib.util.find_spec("car_racing_obstacles")
+assert spec is not None and Path(spec.origin).resolve().is_relative_to(target.resolve()), f"Installed import points to {{getattr(spec, 'origin', None)}}, expected {{target}}"
+'''
+    kept.insert(0, nbformat.v4.new_code_cell(setup))
     for cell in kept:
         if cell.get("id") == "settings":
             cell.source += "\nTRAIN_EPISODES=12; MAX_STEPS=8; ROLLOUT=8; BATCH_SIZE=4; EPOCHS=1\nVALIDATE_EVERY=4; DEVICE='cpu'\nfor case in VALIDATION_CASES: case['max_steps']=8"
@@ -27,6 +52,7 @@ def main():
                                               'for case in load_cases():\n    case["max_steps"] = 8')
     kept.append(nbformat.v4.new_code_cell('''
 import imageio.v2 as imageio
+assert HISTORY == ACTION_REPEAT == 1
 assert config["completed_episodes"] == 12
 assert len(rewards) == 12
 assert (RUN/"best_model.zip").is_file()
@@ -58,7 +84,7 @@ print("NOTEBOOK CHECK PASSED:", RUN)
     output = repo/args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     client = NotebookClient(nb, timeout=300, kernel_name="python3",
-                            resources={"metadata":{"path":str(repo)}})
+                            resources={"metadata":{"path":kernel_dir.name}})
     try:
         client.execute()
         plot_cell = next(cell for cell in nb.cells if cell.get("id") == "plot")
@@ -71,6 +97,7 @@ print("NOTEBOOK CHECK PASSED:", RUN)
         assert any("<video" in output.get("data", {}).get("text/html", "") for output in video_cell.outputs)
     finally:
         nbformat.write(nb, output)
+        kernel_dir.cleanup()
     print("Executed notebook and verified training count, best checkpoint, graph, test suite and every video frame:",output)
 
 

@@ -66,6 +66,10 @@ require running from this source directory.
 
 ## Student workflow with Stable-Baselines3
 
+The Colab setup installs the simulator into the running kernel and adds the
+cloned source directory to its import path, so no kernel restart is needed to
+import it. Existing checkouts are updated with a non-destructive fast-forward pull.
+
 The **Colab demo notebook** installs its dependencies and trains PPO for **500
 completed training episodes**. It displays raw total reward per episode and the
 mean of the last 100 episodes, selects `best_model.zip` using a separate **5+5 validation suite**
@@ -167,39 +171,41 @@ changes the task horizon. Shortened evaluation files are named
 
 ### CarRacing training settings and fixed evaluation scenarios
 
-The demo uses continuous controls, `CnnPolicy` and four recent RGB frames
-(`--history 4`, giving 12 channels). SB3 scales uint8 pixel intensities internally.
+The demo uses continuous controls and `CnnPolicy`. Both `--history` and
+`--action-repeat` default to **1**: one RGB image and one physics frame per
+policy decision. SB3 scales uint8 pixel intensities internally. Students must
+investigate and justify observation history and action persistence themselves.
 Training samples tracks on reset. Add `--randomize` to vary appearance during
 training; `--obstacles N` and `--traffic N` enable extra hazards. The assignment's
 standard evaluation suite has no added obstacles, mountains or ghost.
 
-To train for **500 completed episodes** with four-frame history and an action
-held for three physics frames:
+To train for **500 completed episodes** using the baseline defaults:
 
 ```sh
-python examples/train_ppo.py --episodes 500 --history 4 --action-repeat 3 --seed 0 --output outputs/ppo_h4_repeat3_seed0
+python examples/train_ppo.py --episodes 500 --seed 0 --output outputs/ppo_seed0
 ```
 
 For DQN with the same history, persistence and episode target, use the native
 five-action discrete control mode:
 
 ```sh
-python examples/train_dqn.py --episodes 500 --history 4 --action-repeat 3 --seed 0 --output outputs/dqn_h4_repeat3_seed0
+python examples/train_dqn.py --episodes 500 --seed 0 --output outputs/dqn_seed0
 ```
 
 The DQN demo uses a 10,000-transition replay buffer, 1,000 warm-up decisions,
 one update every four decisions and epsilon-greedy exploration. The replay
-buffer stores both image stacks and next stacks (roughly 2.2 GB at this size).
+buffer stores current and next observations; its memory use grows with history
+length and buffer size.
 The same run/evaluation/video scripts read the algorithm and action mode from
 `config.json` and work with either saved PPO or DQN models.
 
 `--episodes` replaces the timestep stopping budget. The SB3 callback stops when
 the episode count is reached. SB3 timesteps count **policy decisions**: one PPO
-iteration collects `--rollout` decisions (512 by default) before updating. With
-persistence 3, each decision advances up to three physics frames, sums their
-rewards and returns the final image. It stops early at episode boundaries. The
-four-image stack contains recent **decision-time images** (12 RGB channels),
-with no max pooling. The 1,000-step time limit still counts physics frames.
+iteration collects `--rollout` decisions (512 by default) before updating.
+`--action-repeat` controls how many physics frames hold each action; their raw
+rewards are summed and the final image is returned. Repetition stops at episode
+boundaries. `--history` stacks recent decision-time images, without max pooling.
+The 1,000-step time limit always counts physics frames.
 
 `training.monitor.csv` records episode return, decision count, physics-frame
 count and success. `progress.json` reports the live completed-episode count,

@@ -73,7 +73,7 @@ def save_results(rows, output):
 
 import car_racing_obstacles  # installs the Gymnasium registration on import
 from stable_baselines3.common.vec_env import VecTransposeImage
-DEFAULT_HISTORY = 4
+DEFAULT_HISTORY = 1
 POLICY = "CnnPolicy"
 VIDEO_FPS = 50
 
